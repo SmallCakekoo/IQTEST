@@ -3,6 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Typewriter from '../components/Typewriter';
 import ChoiceButton from '../components/ChoiceButton';
 
+import TrenP1 from '../assets/images/justice images/Tren-P1.png';
+import TrenP2 from '../assets/images/justice images/Tren-P2.png';
+import TrenP3 from '../assets/images/justice images/Tren-P3.png';
+import TrenP4 from '../assets/images/justice images/Tren-P4.png';
+import TrenP5 from '../assets/images/justice images/Tren-P5.png';
+
 const Level3 = ({ onNext, t, onIQChange }) => {
   const [step, setStep] = useState(0);
   const [logs, setLogs] = useState([]);
@@ -53,11 +59,11 @@ const Level3 = ({ onNext, t, onIQChange }) => {
 
   const questions = [
     // Trolley
-    { title: t.justice_title_trolley, q: t.jus_t_q1, options: createTrolleyOptions(t.jus_t_q1_opts) },
-    { title: t.justice_title_trolley, q: t.jus_t_q2, options: createTrolleyOptions(t.jus_t_q2_opts) },
-    { title: t.justice_title_trolley, q: t.jus_t_q3, options: createTrolleyOptions(t.jus_t_q3_opts) },
-    { title: t.justice_title_trolley, q: t.jus_t_q4, options: createTrolleyOptions(t.jus_t_q4_opts) },
-    { title: t.justice_title_trolley, q: t.jus_t_q5, options: createTrolleyOptions(t.jus_t_q5_opts) },
+    { title: t.justice_title_trolley, q: t.jus_t_q1, image: TrenP1, options: createTrolleyOptions(t.jus_t_q1_opts) },
+    { title: t.justice_title_trolley, q: t.jus_t_q2, image: TrenP2, options: createTrolleyOptions(t.jus_t_q2_opts) },
+    { title: t.justice_title_trolley, q: t.jus_t_q3, image: TrenP3, options: createTrolleyOptions(t.jus_t_q3_opts) },
+    { title: t.justice_title_trolley, q: t.jus_t_q4, image: TrenP4, options: createTrolleyOptions(t.jus_t_q4_opts) },
+    { title: t.justice_title_trolley, q: t.jus_t_q5, image: TrenP5, options: createTrolleyOptions(t.jus_t_q5_opts) },
     // Judgment
     { title: t.justice_title_judgment, q: t.jus_j_q1, options: createJudgmentOptions(t.jus_j_q1_opts, 1) }, // B
     { title: t.justice_title_judgment, q: t.jus_j_q2, options: createJudgmentOptions(t.jus_j_q2_opts, 2) }, // C
@@ -82,6 +88,16 @@ const Level3 = ({ onNext, t, onIQChange }) => {
           <div className="mb-6 pixel-border" style={{ whiteSpace: 'pre-line' }}>
             <Typewriter text={current.q} key={step} delay={15} />
           </div>
+
+          {current.image && (
+            <div className="mb-6 pixel-border" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <img
+                src={current.image}
+                alt="Trolley dilemma"
+                style={{ maxWidth: '100%', maxHeight: '260px', width: '100%', objectFit: 'contain' }}
+              />
+            </div>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: current.options.length > 2 ? '1fr 1fr' : '1fr', gap: '1.5rem' }}>
             {current.options.map((opt, i) => (

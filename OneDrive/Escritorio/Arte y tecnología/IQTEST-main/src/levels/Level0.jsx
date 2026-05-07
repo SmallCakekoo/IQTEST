@@ -17,10 +17,17 @@ const Level0 = ({ onNext, t }) => {
 
   const corruptionStartMsRef = useRef(null);
   const corruptionDoneTimeoutRef = useRef(null);
+  const glitchAudioRef = useRef(null);
+  const glitchStopTimeoutRef = useRef(null);
 
   useEffect(() => {
     return () => {
       if (corruptionDoneTimeoutRef.current) clearTimeout(corruptionDoneTimeoutRef.current);
+      if (glitchStopTimeoutRef.current) clearTimeout(glitchStopTimeoutRef.current);
+      if (glitchAudioRef.current) {
+        glitchAudioRef.current.pause();
+        glitchAudioRef.current.currentTime = 0;
+      }
     };
   }, []);
 
@@ -35,6 +42,26 @@ const Level0 = ({ onNext, t }) => {
   };
 
   const handleRoleSelect = (selectedRole) => {
+    if (glitchStopTimeoutRef.current) {
+      clearTimeout(glitchStopTimeoutRef.current);
+      glitchStopTimeoutRef.current = null;
+    }
+    if (glitchAudioRef.current) {
+      glitchAudioRef.current.pause();
+      glitchAudioRef.current.currentTime = 0;
+    }
+
+    const audio = new Audio(glitchSound);
+    audio.preload = 'auto';
+    audio.volume = 0.8;
+    audio.playbackRate = 1.0;
+    audio.play().catch(() => {});
+    glitchAudioRef.current = audio;
+    glitchStopTimeoutRef.current = setTimeout(() => {
+      audio.pause();
+      audio.currentTime = 0;
+    }, CORRUPT_SOUND_MS);
+
     setRole(selectedRole);
     corruptionStartMsRef.current = performance.now();
     setSubmittedRole(true);
@@ -101,8 +128,6 @@ const Level0 = ({ onNext, t }) => {
             <Typewriter
               text={`[HASH_MISMATCH] ... [CORRUPTION_DETECTED] ... OVERWRITING_IDENTITY ...`}
               delay={18}
-              soundSrc={glitchSound}
-              soundDurationMs={CORRUPT_SOUND_MS}
               onComplete={() => {
                 const start = corruptionStartMsRef.current ?? performance.now();
                 const elapsed = performance.now() - start;
