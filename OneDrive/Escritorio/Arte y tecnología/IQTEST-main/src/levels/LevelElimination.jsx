@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   DndContext,
@@ -12,6 +12,7 @@ import {
 import Typewriter from '../components/Typewriter';
 import kidScream from '../assets/soun effects/kidScream.mp3';
 import manScreaming from '../assets/soun effects/manScreaming.mp3';
+import glitchSound from '../assets/soun effects/glitchSound.mp3';
 
 const TokenItem = ({ label, isDragging, activeId }) => {
   if (isDragging) {
@@ -112,6 +113,7 @@ const LevelElimination = ({ onNext }) => {
   const [activeId, setActiveId] = useState(null);
   const [locked, setLocked] = useState(false);
   const [logs, setLogs] = useState([]);
+  const glitchAudioRef = useRef(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } })
@@ -120,6 +122,42 @@ const LevelElimination = ({ onNext }) => {
   const current = prompts[step];
   const zoneId = `zone-${step}`;
   const isLastQuestion = step === prompts.length - 1;
+
+  useEffect(() => {
+    if (!isLastQuestion || locked) {
+      if (glitchAudioRef.current) {
+        glitchAudioRef.current.pause();
+        glitchAudioRef.current.currentTime = 0;
+        glitchAudioRef.current = null;
+      }
+      return;
+    }
+
+    const audio = new Audio(glitchSound);
+    audio.preload = 'auto';
+    audio.loop = true;
+    audio.volume = 0.7;
+    glitchAudioRef.current = audio;
+    audio.play().catch(() => {});
+
+    return () => {
+      if (glitchAudioRef.current === audio) {
+        audio.pause();
+        audio.currentTime = 0;
+        glitchAudioRef.current = null;
+      }
+    };
+  }, [isLastQuestion, locked]);
+
+  useEffect(() => {
+    return () => {
+      if (glitchAudioRef.current) {
+        glitchAudioRef.current.pause();
+        glitchAudioRef.current.currentTime = 0;
+        glitchAudioRef.current = null;
+      }
+    };
+  }, []);
 
   const handleDragStart = ({ active }) => setActiveId(active.id);
 
@@ -135,6 +173,12 @@ const LevelElimination = ({ onNext }) => {
     setLogs(nextLogs);
 
     if (isLastQuestion) {
+      if (glitchAudioRef.current) {
+        glitchAudioRef.current.pause();
+        glitchAudioRef.current.currentTime = 0;
+        glitchAudioRef.current = null;
+      }
+
       const kid = new Audio(kidScream);
       const man = new Audio(manScreaming);
 
