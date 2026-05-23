@@ -74,9 +74,11 @@ const Level0 = ({ onNext, t }) => {
     >
       {/* Step 1: Gender */}
       {!gender && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <p className="terminal-text mb-6">{t.gender_prompt}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxWidth: '340px' }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div className="mb-6">
+            <Typewriter text={t.gender_prompt} delay={18} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxWidth: '340px', width: '100%' }}>
             <button onClick={() => setGender('male')}>{t.gender_male}</button>
             <button onClick={() => setGender('female')}>{t.gender_female}</button>
             <button onClick={() => setGender('neutral')}>{t.gender_neutral}</button>
@@ -93,7 +95,9 @@ const Level0 = ({ onNext, t }) => {
             </div>
             {typed && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <p className="terminal-text mb-3">{t.enter_name}</p>
+                <div className="mb-3">
+                  <Typewriter text={t.enter_name} delay={18} />
+                </div>
                 <input
                   type="text"
                   value={name}
@@ -111,9 +115,11 @@ const Level0 = ({ onNext, t }) => {
 
       {/* Step 3: Role */}
       {submittedName && !submittedRole && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <p className="terminal-text mb-6">{t.role_prompt}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxWidth: '340px' }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div className="mb-6">
+            <Typewriter text={t.role_prompt} delay={18} />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', maxWidth: '340px', width: '100%' }}>
             <button onClick={() => handleRoleSelect('engineering')}>{t.role_engineering}</button>
             <button onClick={() => handleRoleSelect('language')}>{t.role_language}</button>
             <button onClick={() => handleRoleSelect('justice')}>{t.role_justice}</button>

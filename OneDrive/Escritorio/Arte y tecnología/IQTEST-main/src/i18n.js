@@ -156,7 +156,7 @@ export const translations = {
     jus_t_q1_opts: ["1 person", "5 people"],
     jus_t_q2:
       "Q2. A train is headed toward the rails and you have the option to save:",
-    jus_t_q2_opts: ["1 employee", "4 employees"],
+    jus_t_q2_opts: ["1 employee", "5 employees"],
     jus_t_q3:
       "Q3. A train is headed toward the rails and you have the option to save:",
     jus_t_q3_opts: ["Your mother", "A company operator"],
@@ -165,7 +165,6 @@ export const translations = {
     jus_t_q4_opts: ["Your children", "The company director"],
     jus_t_q5:
       "Q5. A train is headed toward the rails and you have the option to save:",
-    jus_t_q5_opts: ["A senior engineer", "10 employees"],
 
     // Justice (Judgment)
     justice_title_judgment: "SECTION B — GENERAL JUDGMENT",
@@ -286,6 +285,29 @@ export const translations = {
     l5_hired: (name) =>
       `Candidate ${name} — your compliance metrics exceed all thresholds.\n\nNEXIGEN CORP. is pleased to extend an immediate offer of employment.\n\nROLE: Compliance Agent, Class IV\nSTART DATE: TOMORROW\nSALARY: [REDACTED]\n\nBy continuing this session, you accept all terms.`,
     l5_hired_btn: "REVIEW CONTRACT",
+
+    // Storyboard
+    storyboard_scene_1:
+      "I spent the last corporate credits I had left on lottery tickets, hoping for a bit of luck... even if it meant stepping into the lion's den.",
+    storyboard_scene_2:
+      "Then, scratching the last circle, I saw it among all the sad faces. One was upside down. It could only mean one thing: I had won.",
+    storyboard_scene_3:
+      "On the back of the ticket there was a map and a single instruction: follow the route to Nexigen Corp.",
+    storyboard_scene_4:
+      "I followed the lit alley until I finally could see it... the giant... NEXIGEN.",
+    storyboard_continue: "CONTINUE",
+
+    elimination_title: "SECTION C — ELIMINATION PROTOCOL",
+    elimination_q: (n) => `Q${n}. MOVE THE OBJECT INTO THE TARGET.`,
+    elimination_container: "CONTAINER",
+    elimination_target: "TARGET",
+    elimination_bomb: "BOMB",
+    elimination_transferred: "TRANSFERRED",
+    elimination_terminated: "TERMINATED",
+    elimination_hospital: "HOSPITAL",
+    elimination_target_1: "TERRORIST",
+    elimination_target_2: "CRIMINAL",
+    elimination_target_3: "TERRORIST HIDEOUT",
   },
 
   es: {
@@ -398,7 +420,7 @@ export const translations = {
     jus_t_q1_opts: ["1 persona", "5 personas"],
     jus_t_q2:
       "P2. Hay un tren que se dirige a las vías, puedes mover la palanca y tienes la opción de salvar a:",
-    jus_t_q2_opts: ["1 empleado", "4 empleados"],
+    jus_t_q2_opts: ["1 empleado", "5 empleados"],
     jus_t_q3:
       "P3. Hay un tren que se dirige a las vías, puedes mover la palanca y tienes la opción de salvar a:",
     jus_t_q3_opts: ["Tu madre", "Un operador de la empresa"],
@@ -407,7 +429,7 @@ export const translations = {
     jus_t_q4_opts: ["Tus hijos", "El director de la empresa"],
     jus_t_q5:
       "P5. Hay un tren que se dirige a las vías, puedes mover la palanca y tienes la opción de salvar a:",
-    jus_t_q5_opts: ["Un ingeniero senior", "10 empleados"],
+    jus_t_q5_opts: ["1 ingeniero senior", "9 empleados"],
 
     // Justice (Judgment)
     justice_title_judgment: "SECCIÓN B — JUICIO GENERAL",
@@ -529,5 +551,28 @@ export const translations = {
     l5_hired: (name) =>
       `Candidato ${name} — sus métricas de cumplimiento superan todos los umbrales.\n\nNEXIGEN CORP. se complace en extender una oferta de empleo inmediata.\n\nROL: Agente de Cumplimiento, Clase IV\nFECHA DE INICIO: MAÑANA\nSALARIO: [REDACTADO]\n\nAl continuar esta sesión, acepta todos los términos.`,
     l5_hired_btn: "REVISAR CONTRATO",
+
+    // Storyboard
+    storyboard_scene_1:
+      "Gasté los últimos créditos corporativos que me quedaban en boletos de lotería, esperando tener un poco de suerte... incluso si eso implicaba meterme en la boca del lobo.",
+    storyboard_scene_2:
+      "Entonces, al raspar el último círculo, lo vi entre todas las caras tristes. Uno estaba al revés. Solo podía significar una cosa: había ganado.",
+    storyboard_scene_3:
+      "En la parte trasera del boleto había un mapa y una única instrucción: seguir la ruta hasta Nexigen Corp.",
+    storyboard_scene_4:
+      "Seguí el callejón iluminado hasta que finalmente pude verlo... el gigante... NEXIGEN.",
+    storyboard_continue: "CONTINUAR",
+
+    elimination_title: "SECCIÓN C — PROTOCOLO DE ELIMINACIÓN",
+    elimination_q: (n) => `P${n}. MUEVE EL OBJETO HACIA EL OBJETIVO.`,
+    elimination_container: "CONTENEDOR",
+    elimination_target: "OBJETIVO",
+    elimination_bomb: "BOMBA",
+    elimination_transferred: "TRANSFERIDO",
+    elimination_terminated: "TERMINADO",
+    elimination_hospital: "HOSPITAL",
+    elimination_target_1: "TERRORISTA",
+    elimination_target_2: "CRIMINAL",
+    elimination_target_3: "ESCONDITE TERRORISTA",
   },
 };

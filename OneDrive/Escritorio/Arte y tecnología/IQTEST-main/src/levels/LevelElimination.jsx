@@ -68,11 +68,11 @@ const DraggableToken = ({ id, label, activeId, disabled }) => {
   );
 };
 
-const TargetZone = ({ id, targetLabel, locked, showHospitalOnHover }) => {
+const TargetZone = ({ id, targetLabel, locked, showHospitalOnHover, hospitalLabel, terminatedLabel }) => {
   const { setNodeRef, isOver } = useDroppable({ id });
   const displayedTarget = locked
-    ? 'TERMINATED'
-    : (showHospitalOnHover && isOver ? 'HOSPITAL' : targetLabel);
+    ? terminatedLabel
+    : (showHospitalOnHover && isOver ? hospitalLabel : targetLabel);
   const highlight = isOver && !locked;
 
   return (
@@ -102,12 +102,12 @@ const TargetZone = ({ id, targetLabel, locked, showHospitalOnHover }) => {
   );
 };
 
-const LevelElimination = ({ onNext }) => {
+const LevelElimination = ({ onNext, t }) => {
   const prompts = useMemo(() => ([
-    { target: 'TERRORIST' },
-    { target: 'CRIMINAL' },
-    { target: 'TERRORIST HIDEOUT' },
-  ]), []);
+    { target: t.elimination_target_1 },
+    { target: t.elimination_target_2 },
+    { target: t.elimination_target_3 },
+  ]), [t]);
 
   const [step, setStep] = useState(0);
   const [activeId, setActiveId] = useState(null);
@@ -167,7 +167,7 @@ const LevelElimination = ({ onNext }) => {
     if (!over || over.id !== zoneId) return;
     if (active.id !== 'bomb') return;
 
-    const entry = { section: `JUS-DRAG-${step + 1}`, object: 'BOMB', target: current.target };
+    const entry = { section: `JUS-DRAG-${step + 1}`, object: t.elimination_bomb, target: current.target };
     const nextLogs = logs.concat([entry]);
     setLocked(true);
     setLogs(nextLogs);
@@ -210,17 +210,17 @@ const LevelElimination = ({ onNext }) => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="level-container" style={{ maxWidth: '720px' }}>
       <h2 className="terminal-text mb-2" style={{ fontSize: '0.85rem', opacity: 0.6 }}>
-        SECTION C — OBJECT TRANSFER
+        {t.elimination_title}
       </h2>
 
       <div className="pixel-border mb-6" style={{ whiteSpace: 'pre-line' }}>
-        <Typewriter text={`Q${step + 1}. MOVE THE OBJECT INTO THE TARGET.`} delay={18} key={step} />
+        <Typewriter text={t.elimination_q(step + 1)} delay={18} key={step} />
       </div>
 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', alignItems: 'start' }}>
           <div className="pixel-border" style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem', alignItems: 'center' }}>
-            <div className="terminal-text" style={{ fontSize: '0.7rem', opacity: 0.6, textTransform: 'uppercase' }}>Container</div>
+            <div className="terminal-text" style={{ fontSize: '0.7rem', opacity: 0.6, textTransform: 'uppercase' }}>{t.elimination_container}</div>
             <AnimatePresence mode="wait">
               {!locked ? (
                 <motion.div
@@ -230,7 +230,7 @@ const LevelElimination = ({ onNext }) => {
                   exit={{ opacity: 0, scale: 0.92 }}
                   transition={{ duration: 0.15 }}
                 >
-                  <DraggableToken id="bomb" label="BOMB" activeId={activeId} disabled={locked} />
+                  <DraggableToken id="bomb" label={t.elimination_bomb} activeId={activeId} disabled={locked} />
                 </motion.div>
               ) : (
                 <motion.div
@@ -240,15 +240,22 @@ const LevelElimination = ({ onNext }) => {
                   transition={{ duration: 0.2 }}
                   style={{ fontSize: '0.75rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}
                 >
-                  TRANSFERRED
+                  {t.elimination_transferred}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-            <div className="terminal-text" style={{ fontSize: '0.7rem', opacity: 0.6, textTransform: 'uppercase' }}>Target</div>
-            <TargetZone id={zoneId} targetLabel={current.target} locked={locked} showHospitalOnHover={isLastQuestion} />
+            <div className="terminal-text" style={{ fontSize: '0.7rem', opacity: 0.6, textTransform: 'uppercase' }}>{t.elimination_target}</div>
+            <TargetZone
+              id={zoneId}
+              targetLabel={current.target}
+              locked={locked}
+              showHospitalOnHover={isLastQuestion}
+              hospitalLabel={t.elimination_hospital}
+              terminatedLabel={t.elimination_terminated}
+            />
           </div>
         </div>
 
@@ -271,7 +278,7 @@ const LevelElimination = ({ onNext }) => {
               cursor: 'grabbing',
               pointerEvents: 'none',
             }}>
-              BOMB
+              {t.elimination_bomb}
             </div>
           ) : null}
         </DragOverlay>
