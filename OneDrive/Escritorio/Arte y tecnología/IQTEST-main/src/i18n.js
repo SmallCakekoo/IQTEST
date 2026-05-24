@@ -297,6 +297,12 @@ export const translations = {
       "I followed the lit alley until I finally could see it... the giant... NEXIGEN.",
     storyboard_continue: "CONTINUE",
 
+    hud_level: "LEVEL",
+    hud_happiness: "HAPPINESS",
+    hud_reasoning: "REASONING",
+    hud_correct: "CORRECT",
+    hud_wrong: "WRONG",
+
     elimination_title: "SECTION C — ELIMINATION PROTOCOL",
     elimination_q: (n) => `Q${n}. MOVE THE OBJECT INTO THE TARGET.`,
     elimination_container: "CONTAINER",
@@ -562,6 +568,12 @@ export const translations = {
     storyboard_scene_4:
       "Seguí el callejón iluminado hasta que finalmente pude verlo... el gigante... NEXIGEN.",
     storyboard_continue: "CONTINUAR",
+
+    hud_level: "NIVEL",
+    hud_happiness: "FELICIDAD",
+    hud_reasoning: "RAZONAMIENTO",
+    hud_correct: "ACIERTO",
+    hud_wrong: "ERROR",
 
     elimination_title: "SECCIÓN C — PROTOCOLO DE ELIMINACIÓN",
     elimination_q: (n) => `P${n}. MUEVE EL OBJETO HACIA EL OBJETIVO.`,

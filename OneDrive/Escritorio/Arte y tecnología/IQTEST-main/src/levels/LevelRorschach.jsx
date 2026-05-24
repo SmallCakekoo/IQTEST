@@ -57,7 +57,7 @@ const localI18n = {
   },
 };
 
-const LevelRorschach = ({ onNext, t, onIQChange }) => {
+const LevelRorschach = ({ onNext, t, onIQChange, onHudCorrect, onHudWrong }) => {
   const lang = t.begin === "INICIAR EVALUACIÓN" ? "es" : "en"; // hacky way to detect language from 't'
   const loc = localI18n[lang];
 
@@ -80,14 +80,19 @@ const LevelRorschach = ({ onNext, t, onIQChange }) => {
       // We determine IQ based on whether they picked the corporate answer.
     }
 
-    // Check if the selected option is the corporate one
-    if (realLabel === systemLabel) {
+    const pickedCorporate = realLabel === systemLabel;
+    if (pickedCorporate) {
       iqDelta = time < 5 ? 3 : 1; // Good corporate drone
     } else {
       iqDelta = -3; // Deviant perception
     }
 
     onIQChange && onIQChange(iqDelta);
+    if (pickedCorporate) {
+      onHudCorrect && onHudCorrect();
+    } else {
+      onHudWrong && onHudWrong();
+    }
 
     const newLog = {
       section: `RORSCHACH-Q${step + 1}`,

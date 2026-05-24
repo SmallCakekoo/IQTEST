@@ -1,4 +1,4 @@
-import  { useEffect, useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import CRTOverlay from './components/CRTOverlay';
 import LevelIntro from './levels/LevelIntro';
@@ -12,6 +12,7 @@ import Level5 from './levels/Level5';
 import LevelElimination from './levels/LevelElimination';
 import LevelRorschach from './levels/LevelRorschach';
 import LevelStoryboard from './levels/LevelStoryboard';
+import CharacterStatusBar from './components/CharacterStatusBar';
 import { translations, BASE_IQ, IQ_MAX, IQ_MIN } from './i18n';
 
 import buttonSound from './assets/soun effects/buttonSound.mp3';
@@ -26,9 +27,11 @@ const playSound = (src) => {
 
 const initialState = {
   currentLevel: -3,  // -3 = lang select, -2 = storyboard, -1 = intro, 0..N = levels
-  data: { iqDelta: 0 },
+  data: { iqDelta: 0, happiness: 90, reasoning: 10 },
   lang: 'es',
 };
+
+const clampHud = (value) => Math.max(0, Math.min(100, value));
 
 function reducer(state, action) {
   switch (action.type) {
@@ -46,6 +49,33 @@ function reducer(state, action) {
         data: {
           ...state.data,
           iqDelta: (state.data.iqDelta || 0) + action.payload,
+        },
+      };
+    case 'HUD_CORRECT':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          happiness: clampHud((state.data.happiness ?? 90) + 10),
+          reasoning: clampHud((state.data.reasoning ?? 10) - 5),
+        },
+      };
+    case 'HUD_WRONG':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          happiness: clampHud((state.data.happiness ?? 90) - 15),
+          reasoning: clampHud((state.data.reasoning ?? 10) + 10),
+        },
+      };
+    case 'HUD_PARTIAL':
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          happiness: clampHud((state.data.happiness ?? 90) + 5),
+          reasoning: clampHud((state.data.reasoning ?? 10) - 2),
         },
       };
     default:
@@ -146,6 +176,9 @@ function App() {
   const nextLevel = (payload = {}) => dispatch({ type: 'NEXT_LEVEL', payload });
   const setLang = (lang) => dispatch({ type: 'SET_LANG', payload: lang });
   const onIQChange = (delta) => dispatch({ type: 'IQ_CHANGE', payload: delta });
+  const onHudCorrect = () => dispatch({ type: 'HUD_CORRECT' });
+  const onHudWrong = () => dispatch({ type: 'HUD_WRONG' });
+  const onHudPartial = () => dispatch({ type: 'HUD_PARTIAL' });
 
   const currentIQ = Math.min(IQ_MAX, Math.max(IQ_MIN, BASE_IQ + (state.data.iqDelta || 0)));
 
@@ -179,14 +212,14 @@ function App() {
     switch (state.currentLevel) {
       case 0:  return <Level0   onNext={nextLevel}             t={t} />;
       case 1:  
-        if (state.data.role === 'engineering') return <Level1 onNext={nextLevel} onIQChange={onIQChange} t={t} />;
-        if (state.data.role === 'language') return <Level2 onNext={nextLevel} onIQChange={onIQChange} t={t} />;
-        if (state.data.role === 'justice') return <Level3 onNext={nextLevel} onIQChange={onIQChange} t={t} />;
+        if (state.data.role === 'engineering') return <Level1 onNext={nextLevel} onIQChange={onIQChange} onHudCorrect={onHudCorrect} onHudWrong={onHudWrong} t={t} />;
+        if (state.data.role === 'language') return <Level2 onNext={nextLevel} onIQChange={onIQChange} onHudCorrect={onHudCorrect} onHudWrong={onHudWrong} t={t} />;
+        if (state.data.role === 'justice') return <Level3 onNext={nextLevel} onIQChange={onIQChange} onHudCorrect={onHudCorrect} onHudWrong={onHudWrong} t={t} />;
         return <div className="terminal-text">// SYSTEM_HALT — NO_ROLE</div>;
       case 2:
         if (state.data.role === 'engineering') return <LevelNav onNext={nextLevel} onIQChange={onIQChange} t={t} />;
-        if (state.data.role === 'language') return <LevelRorschach onNext={nextLevel} onIQChange={onIQChange} t={t} />;
-        if (state.data.role === 'justice') return <LevelElimination onNext={nextLevel} onIQChange={onIQChange} t={t} />;
+        if (state.data.role === 'language') return <LevelRorschach onNext={nextLevel} onIQChange={onIQChange} onHudCorrect={onHudCorrect} onHudWrong={onHudWrong} t={t} />;
+        if (state.data.role === 'justice') return <LevelElimination onNext={nextLevel} onHudPartial={onHudPartial} t={t} />;
         return null;
       case 3:
         if (state.data.role === 'engineering') return <Level4 onNext={nextLevel} onIQChange={onIQChange} t={t} />;
@@ -202,15 +235,16 @@ function App() {
 
   const totalLevels = state.data.role === 'engineering' ? 4 : 3;
   const showProgress = state.currentLevel >= 0;
+  const showHud = state.currentLevel >= 1 && !!state.data.assignedName;
 
   return (
     <CRTOverlay>
-      <main style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <main style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: showHud ? '155px' : '0' }}>
         <AnimatePresence mode="wait">
           {renderLevel()}
         </AnimatePresence>
 
-        {showProgress && (
+        {showProgress && !showHud && (
           <div style={{
             position: 'absolute',
             bottom: '1.5rem',
@@ -232,6 +266,16 @@ function App() {
               IQ: {currentIQ}
             </span>
           </div>
+        )}
+
+        {showHud && (
+          <CharacterStatusBar
+            assignedName={state.data.assignedName}
+            happiness={state.data.happiness}
+            reasoning={state.data.reasoning}
+            t={t}
+            showDebugControls={false}
+          />
         )}
       </main>
     </CRTOverlay>

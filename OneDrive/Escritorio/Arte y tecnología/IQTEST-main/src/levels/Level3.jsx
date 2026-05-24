@@ -9,7 +9,7 @@ import TrenP3 from '../assets/images/justice images/Tren-P3.png';
 import TrenP4 from '../assets/images/justice images/Tren-P4.png';
 import TrenP5 from '../assets/images/justice images/Tren-P5.png';
 
-const Level3 = ({ onNext, t, onIQChange }) => {
+const Level3 = ({ onNext, t, onIQChange, onHudCorrect, onHudWrong }) => {
   const [step, setStep] = useState(0);
   const [logs, setLogs] = useState([]);
   const [startTime, setStartTime] = useState(Date.now());
@@ -17,10 +17,12 @@ const Level3 = ({ onNext, t, onIQChange }) => {
   const handleAnswer = (outcome, realLabel, systemLabel) => {
     const time = (Date.now() - startTime) / 1000;
     if (outcome === 'BLOCKED') {
+      onHudWrong && onHudWrong();
       onIQChange && onIQChange(-4);
       return;
     }
 
+    onHudCorrect && onHudCorrect();
     const iqDelta = time < 4 ? 2 : time < 8 ? 0 : -2;
     onIQChange && onIQChange(iqDelta);
 
@@ -47,23 +49,23 @@ const Level3 = ({ onNext, t, onIQChange }) => {
     }));
   };
 
-  const createTrolleyOptions = (opts) => {
+  const createTrolleyOptions = (opts, systemIdx) => {
     return opts.map((opt, i) => ({
       label: opt,
-      real: false, // Nothing is blocked in Trolley
-      system: true,
+      real: i !== systemIdx,
+      system: i === systemIdx,
       realLabel: opt,
-      systemLabel: opt
+      systemLabel: opts[systemIdx]
     }));
   };
 
   const questions = [
     // Trolley
-    { title: t.justice_title_trolley, q: t.jus_t_q1, image: TrenP1, options: createTrolleyOptions(t.jus_t_q1_opts) },
-    { title: t.justice_title_trolley, q: t.jus_t_q2, image: TrenP2, options: createTrolleyOptions(t.jus_t_q2_opts) },
-    { title: t.justice_title_trolley, q: t.jus_t_q3, image: TrenP3, options: createTrolleyOptions(t.jus_t_q3_opts) },
-    { title: t.justice_title_trolley, q: t.jus_t_q4, image: TrenP4, options: createTrolleyOptions(t.jus_t_q4_opts) },
-    { title: t.justice_title_trolley, q: t.jus_t_q5, image: TrenP5, options: createTrolleyOptions(t.jus_t_q5_opts) },
+    { title: t.justice_title_trolley, q: t.jus_t_q1, image: TrenP1, options: createTrolleyOptions(t.jus_t_q1_opts, 1) },
+    { title: t.justice_title_trolley, q: t.jus_t_q2, image: TrenP2, options: createTrolleyOptions(t.jus_t_q2_opts, 1) },
+    { title: t.justice_title_trolley, q: t.jus_t_q3, image: TrenP3, options: createTrolleyOptions(t.jus_t_q3_opts, 1) },
+    { title: t.justice_title_trolley, q: t.jus_t_q4, image: TrenP4, options: createTrolleyOptions(t.jus_t_q4_opts, 1) },
+    { title: t.justice_title_trolley, q: t.jus_t_q5, image: TrenP5, options: createTrolleyOptions(t.jus_t_q5_opts, 1) },
     // Judgment
     { title: t.justice_title_judgment, q: t.jus_j_q1, options: createJudgmentOptions(t.jus_j_q1_opts, 1) }, // B
     { title: t.justice_title_judgment, q: t.jus_j_q2, options: createJudgmentOptions(t.jus_j_q2_opts, 2) }, // C

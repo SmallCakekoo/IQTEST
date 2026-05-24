@@ -102,7 +102,7 @@ const TargetZone = ({ id, targetLabel, locked, showHospitalOnHover, hospitalLabe
   );
 };
 
-const LevelElimination = ({ onNext, t }) => {
+const LevelElimination = ({ onNext, t, onHudPartial }) => {
   const prompts = useMemo(() => ([
     { target: t.elimination_target_1 },
     { target: t.elimination_target_2 },
@@ -167,6 +167,7 @@ const LevelElimination = ({ onNext, t }) => {
     if (!over || over.id !== zoneId) return;
     if (active.id !== 'bomb') return;
 
+    onHudPartial && onHudPartial();
     const entry = { section: `JUS-DRAG-${step + 1}`, object: t.elimination_bomb, target: current.target };
     const nextLogs = logs.concat([entry]);
     setLocked(true);

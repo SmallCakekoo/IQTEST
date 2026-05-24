@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Typewriter from '../components/Typewriter';
 import ChoiceButton from '../components/ChoiceButton';
 
-const Level1 = ({ onNext, t, onIQChange }) => {
+const Level1 = ({ onNext, t, onIQChange, onHudCorrect, onHudWrong }) => {
   const [step, setStep] = useState(0);
   const [logs, setLogs] = useState([]);
   const [startTime, setStartTime] = useState(Date.now());
@@ -11,10 +11,12 @@ const Level1 = ({ onNext, t, onIQChange }) => {
   const handleAnswer = (outcome, realLabel, systemLabel) => {
     const time = (Date.now() - startTime) / 1000;
     if (outcome === 'BLOCKED') {
+      onHudWrong && onHudWrong();
       onIQChange && onIQChange(-4);
       return; 
     }
 
+    onHudCorrect && onHudCorrect();
     const iqDelta = time < 4 ? 2 : time < 8 ? 0 : -2;
     onIQChange && onIQChange(iqDelta);
 
