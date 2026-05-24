@@ -2,35 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Typewriter from '../components/Typewriter';
 import { BASE_IQ, IQ_MAX, IQ_MIN } from '../i18n';
+import victoriaGif from '../assets/finales/victoria.GIF';
+import derrotaGif from '../assets/finales/derrota.gif';
 
-const HIRE_THRESHOLD = 12; // iqDelta >= 12 → hired
+// isHired is derived exclusively from targetIQ so GIF and final message always match
+
+// Phases: 'counting' → 'gif' → 'breakdown' → 'reveal'
 
 const Level5 = ({ data, t }) => {
-  // targetIQ is computed the same way as App.jsx footer — single source of truth
   const targetIQ = Math.min(IQ_MAX, Math.max(IQ_MIN, BASE_IQ + (data.iqDelta || 0)));
-
-  // Start counter close to final value so it feels like a "last calibration"
   const startCount = Math.max(IQ_MIN, targetIQ - 25);
   const [displayIQ, setDisplayIQ] = useState(startCount);
-  const [phase, setPhase] = useState('counting'); // counting → breakdown → reveal
+  const [phase, setPhase] = useState('counting');
 
   const [revealDone, setRevealDone] = useState(false);
   const [hiredDone, setHiredDone] = useState(false);
 
-  const isHired = (data.iqDelta || 0) >= HIRE_THRESHOLD;
+  // Single source of truth: if the displayed IQ is above the baseline → victoria/hired
+  const isHired = targetIQ > BASE_IQ;
 
   // Flatten logs
   const allLogs = [
     ...(data.engineeringLogs || []),
     ...(data.languageLogs || []),
     ...(data.justiceLogs || []),
-    ...(data.nav    || []),
+    ...(data.nav || []),
     ...(data.level4 || []),
     ...(data.eliminationLogs || []),
     ...(data.rorschachLogs || []),
   ];
 
-  // Counter
+  // IQ counter — runs only in 'counting' phase, then transitions to 'gif'
   useEffect(() => {
     if (phase !== 'counting') return;
     if (displayIQ < targetIQ) {
@@ -38,14 +40,77 @@ const Level5 = ({ data, t }) => {
       const id = setTimeout(() => setDisplayIQ(v => v + 1), speed);
       return () => clearTimeout(id);
     }
-    const id = setTimeout(() => setPhase('breakdown'), 1000);
+    // Counter finished → show GIF phase after a brief pause
+    const id = setTimeout(() => setPhase('gif'), 900);
     return () => clearTimeout(id);
   }, [displayIQ, targetIQ, phase]);
 
-  /* ── Breakdown table ── */
+  /* ── IQ colour helper ── */
+  const iqColor = targetIQ < 95 ? '#ff4444' : targetIQ >= 120 ? '#00ffcc' : '#00FF41';
+
+  /* ── PHASE: gif — IQ + GIF + CONTINUAR button ── */
+  const renderGif = () => (
+    <motion.div
+      key="gif-phase"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem' }}
+    >
+      {/* IQ heading — stays visible */}
+      <div className="text-center">
+        <motion.h1
+          className="terminal-text"
+          style={{ fontSize: '3.2rem', letterSpacing: '0.04em', lineHeight: 1.1 }}
+        >
+          {t.l5_iq}:<br />
+          <span style={{ color: iqColor, textShadow: `0 0 12px ${iqColor}` }}>
+            {displayIQ}
+          </span>
+        </motion.h1>
+        <p className="terminal-text mt-2" style={{ fontSize: '0.75rem', opacity: 0.45 }}>
+          {t.identification}: {data.assignedName || 'EXP_32'}
+        </p>
+      </div>
+
+      {/* Outcome GIF */}
+      <motion.img
+        key="outcome-gif"
+        src={isHired ? victoriaGif : derrotaGif}
+        alt={isHired ? 'Victoria' : 'Derrota'}
+        initial={{ opacity: 0, scale: 0.88 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.55, ease: 'easeOut' }}
+        style={{
+          maxWidth: '340px',
+          width: '100%',
+          borderRadius: '4px',
+          border: `2px solid ${isHired ? '#00FF41' : '#ff4444'}`,
+          boxShadow: `0 0 28px ${isHired ? 'rgba(0,255,65,0.4)' : 'rgba(255,68,68,0.4)'}`,
+        }}
+      />
+
+      {/* CONTINUAR button */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+      >
+        <button onClick={() => setPhase('breakdown')}>
+          {t.storyboard_continue || 'CONTINUAR'}
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+
+  /* ── PHASE: breakdown — REGISTRO DE RESPUESTAS ── */
   const renderBreakdown = () => (
     <motion.div
-      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+      key="breakdown-phase"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
       transition={{ duration: 0.45 }}
       className="mb-8"
     >
@@ -94,9 +159,15 @@ const Level5 = ({ data, t }) => {
     </motion.div>
   );
 
-  /* ── Reveal / Hired ── */
+  /* ── PHASE: reveal — mensaje final ── */
   const renderReveal = () => (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="pixel-border mt-4">
+    <motion.div
+      key="reveal-phase"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="pixel-border mt-4"
+    >
       {isHired ? (
         /* HIRED PATH */
         <>
@@ -146,32 +217,43 @@ const Level5 = ({ data, t }) => {
     </motion.div>
   );
 
+  /* ── PHASE: counting — solo el IQ animándose ── */
+  if (phase === 'counting') {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="level-container"
+        style={{ maxWidth: '760px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <div className="text-center">
+          <motion.h1
+            className="terminal-text"
+            style={{ fontSize: '3.2rem', letterSpacing: '0.04em', lineHeight: 1.1 }}
+          >
+            {t.l5_iq}:<br />
+            <span style={{ color: iqColor, textShadow: `0 0 12px ${iqColor}` }}>
+              {displayIQ}
+            </span>
+          </motion.h1>
+          <p className="terminal-text mt-2" style={{ fontSize: '0.75rem', opacity: 0.45 }}>
+            {t.identification}: {data.assignedName || 'EXP_32'}
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  /* ── All other phases: gif / breakdown / reveal ── */
   return (
     <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       className="level-container"
       style={{ maxWidth: '760px', overflowY: 'auto', maxHeight: '90vh' }}
     >
-      {/* IQ display */}
-      <div className="text-center mb-8">
-        <motion.h1
-          className="terminal-text"
-          style={{ fontSize: '3.2rem', letterSpacing: '0.04em', lineHeight: 1.1 }}
-        >
-          {t.l5_iq}:<br />
-          <span style={{ 
-            color: targetIQ < 95 ? '#ff4444' : targetIQ >= 120 ? '#00ffcc' : '#00FF41',
-            textShadow: `0 0 12px ${targetIQ < 95 ? '#ff4444' : targetIQ >= 120 ? '#00ffcc' : '#00FF41'}` 
-          }}>
-            {displayIQ}
-          </span>
-        </motion.h1>
-        <p className="terminal-text mt-2" style={{ fontSize: '0.75rem', opacity: 0.45 }}>
-          {t.identification}: {data.assignedName || 'EXP_32'}
-        </p>
-      </div>
-
       <AnimatePresence mode="wait">
+        {phase === 'gif'       && renderGif()}
         {phase === 'breakdown' && renderBreakdown()}
         {phase === 'reveal'    && renderReveal()}
       </AnimatePresence>
