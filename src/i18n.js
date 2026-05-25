@@ -296,6 +296,7 @@ export const translations = {
     storyboard_scene_4:
       "I followed the lit alley until I finally could see it... the giant... NEXIGEN.",
     storyboard_continue: "CONTINUE",
+    storyboard_skip: "SKIP",
 
     hud_level: "LEVEL",
     hud_happiness: "HAPPINESS",
@@ -568,6 +569,7 @@ export const translations = {
     storyboard_scene_4:
       "Seguí el callejón iluminado hasta que finalmente pude verlo... el gigante... NEXIGEN.",
     storyboard_continue: "CONTINUAR",
+    storyboard_skip: "SALTAR",
 
     hud_level: "NIVEL",
     hud_happiness: "FELICIDAD",

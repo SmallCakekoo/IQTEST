@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Typewriter from '../components/Typewriter';
 import { BASE_IQ, IQ_MAX, IQ_MIN } from '../i18n';
 import victoriaGif from '../assets/finales/victoria.GIF';
 import derrotaGif from '../assets/finales/derrota.gif';
+import goodEnding from '../assets/soun effects/goodEnding.mp3';
+import goodEnding2 from '../assets/soun effects/goodEnding2.mp3';
+import badEnding from '../assets/soun effects/badEnding.mp3';
 
 // isHired is derived exclusively from targetIQ so GIF and final message always match
 
@@ -18,8 +21,44 @@ const Level5 = ({ data, t }) => {
   const [revealDone, setRevealDone] = useState(false);
   const [hiredDone, setHiredDone] = useState(false);
 
-  // Single source of truth: if the displayed IQ is above the baseline → victoria/hired
-  const isHired = targetIQ > BASE_IQ;
+  const iqDelta = data.iqDelta || 0;
+  const isHired = iqDelta >= 12;
+  const endingAudioRef = useRef([]);
+  const endingPlayedRef = useRef(false);
+
+  useEffect(() => {
+    if (phase !== 'gif') return;
+    if (endingPlayedRef.current) return;
+    endingPlayedRef.current = true;
+
+    const audios = [];
+    const main = new Audio(isHired ? goodEnding : badEnding);
+    main.preload = 'auto';
+    main.loop = false;
+    main.volume = 0.85;
+    audios.push(main);
+
+    if (isHired) {
+      const secondary = new Audio(goodEnding2);
+      secondary.preload = 'auto';
+      secondary.loop = false;
+      secondary.volume = 0.85;
+      audios.push(secondary);
+    }
+
+    endingAudioRef.current = audios;
+    for (const a of audios) a.play().catch(() => {});
+
+    return () => {
+      if (endingAudioRef.current === audios) {
+        for (const a of audios) {
+          a.pause();
+          a.currentTime = 0;
+        }
+        endingAudioRef.current = [];
+      }
+    };
+  }, [phase, isHired]);
 
   // Flatten logs
   const allLogs = [

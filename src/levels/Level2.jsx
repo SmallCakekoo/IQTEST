@@ -4,20 +4,25 @@ import Typewriter from '../components/Typewriter';
 import ChoiceButton from '../components/ChoiceButton';
 
 const Level2 = ({ onNext, t, onIQChange, onHudCorrect, onHudWrong }) => {
+  const MAX_WRONG_BEFORE_NO_GAIN = 2;
   const [step, setStep] = useState(0);
   const [logs, setLogs] = useState([]);
   const [startTime, setStartTime] = useState(Date.now());
+  const [wrongAttemptsByStep, setWrongAttemptsByStep] = useState({});
 
   const handleAnswer = (outcome, realLabel, systemLabel) => {
     const time = (Date.now() - startTime) / 1000;
     if (outcome === 'BLOCKED') {
       onHudWrong && onHudWrong();
       onIQChange && onIQChange(-4);
+      setWrongAttemptsByStep((prev) => ({ ...prev, [step]: (prev[step] || 0) + 1 }));
       return;
     }
 
     onHudCorrect && onHudCorrect();
-    const iqDelta = time < 4 ? 2 : time < 8 ? 0 : -2;
+    const wrongAttempts = wrongAttemptsByStep[step] || 0;
+    const rawDelta = time < 4 ? 2 : time < 8 ? 0 : -2;
+    const iqDelta = wrongAttempts >= MAX_WRONG_BEFORE_NO_GAIN ? Math.min(0, rawDelta) : rawDelta;
     onIQChange && onIQChange(iqDelta);
 
     const newLog = { section: `LANG-Q${step + 1}`, real: realLabel, system: systemLabel, time };

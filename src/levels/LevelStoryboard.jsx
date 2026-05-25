@@ -49,6 +49,7 @@ const LevelStoryboard = ({ onNext, t }) => {
       style={{
         width: "100%",
         height: "100vh",
+        position: "relative",
 
         display: "flex",
         justifyContent: "center",
@@ -57,6 +58,20 @@ const LevelStoryboard = ({ onNext, t }) => {
         overflow: "hidden",
       }}
     >
+      <button
+        onClick={onNext}
+        style={{
+          position: "absolute",
+          top: "1rem",
+          right: "1rem",
+          fontSize: "0.65rem",
+          padding: "0.35rem 0.7rem",
+          opacity: 0.75,
+          zIndex: 2,
+        }}
+      >
+        {t?.storyboard_skip || "SKIP"}
+      </button>
       <div
         style={{
           width: "min(760px, 92vw)",

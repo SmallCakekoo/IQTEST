@@ -181,6 +181,12 @@ function App() {
   const onHudPartial = () => dispatch({ type: 'HUD_PARTIAL' });
 
   const currentIQ = Math.min(IQ_MAX, Math.max(IQ_MIN, BASE_IQ + (state.data.iqDelta || 0)));
+  const iqSpan = IQ_MAX - IQ_MIN;
+  const iqNormalized = iqSpan > 0 ? (currentIQ - IQ_MIN) / iqSpan : 0.5;
+  const passIQ = Math.min(IQ_MAX, Math.max(IQ_MIN, BASE_IQ + 12));
+  const derivedHappinessRaw = clampHud(Math.round(iqNormalized * 100));
+  const derivedHappiness = currentIQ < passIQ ? Math.min(69, derivedHappinessRaw) : derivedHappinessRaw;
+  const derivedReasoning = clampHud(100 - derivedHappiness);
 
 
   const renderLevel = () => {
@@ -235,44 +241,48 @@ function App() {
 
   const totalLevels = state.data.role === 'engineering' ? 4 : 3;
   const showProgress = state.currentLevel >= 0;
-  const showHud = state.currentLevel >= 1 && !!state.data.assignedName;
+  const isEnding = state.currentLevel === totalLevels;
+  const showHud = state.currentLevel >= 1 && !!state.data.assignedName && !isEnding;
 
   return (
     <CRTOverlay>
-      <main style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: showHud ? '155px' : '0' }}>
-        <AnimatePresence mode="wait">
-          {renderLevel()}
-        </AnimatePresence>
+      <main className="app-shell">
+        <div className="app-stage">
+          <AnimatePresence mode="wait">
+            {renderLevel()}
+          </AnimatePresence>
 
-        {showProgress && !showHud && (
-          <div style={{
-            position: 'absolute',
-            bottom: '1.5rem',
-            left: '2rem',
-            right: '2rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            fontSize: '0.65rem',
-            opacity: 0.45,
-            fontFamily: 'var(--font-family)',
-          }}>
-            <span>[ SEC {state.currentLevel} / {totalLevels} ]</span>
-            <span>NEXIGEN CORP. — CANDIDATE: {state.data.assignedName || '???'}</span>
-            <span style={{ 
-              color: currentIQ < 95 ? '#ff4444' : 'var(--primary-color)',
-              textShadow: `0 0 6px ${currentIQ < 95 ? '#ff4444' : 'var(--primary-color)'}`
+          {showProgress && !showHud && !isEnding && (
+            <div style={{
+              position: 'absolute',
+              bottom: '1.5rem',
+              left: '2rem',
+              right: '2rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontSize: '0.65rem',
+              opacity: 0.45,
+              fontFamily: 'var(--font-family)',
             }}>
-              IQ: {currentIQ}
-            </span>
-          </div>
-        )}
+              <span>[ SEC {state.currentLevel} / {totalLevels} ]</span>
+              <span>NEXIGEN CORP. — CANDIDATE: {state.data.assignedName || '???'}</span>
+              <span style={{ 
+                color: currentIQ < 95 ? '#ff4444' : 'var(--primary-color)',
+                textShadow: `0 0 6px ${currentIQ < 95 ? '#ff4444' : 'var(--primary-color)'}`
+              }}>
+                IQ: {currentIQ}
+              </span>
+            </div>
+          )}
+        </div>
 
         {showHud && (
           <CharacterStatusBar
             assignedName={state.data.assignedName}
-            happiness={state.data.happiness}
-            reasoning={state.data.reasoning}
+            iq={currentIQ}
+            happiness={derivedHappiness}
+            reasoning={derivedReasoning}
             t={t}
             showDebugControls={false}
           />

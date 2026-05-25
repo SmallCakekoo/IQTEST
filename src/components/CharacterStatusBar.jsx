@@ -12,7 +12,7 @@ const getFaceState = (happiness) => {
   return 'sad';
 };
 
-const CharacterStatusBar = ({ assignedName, happiness = 90, reasoning = 10, t, showDebugControls = false }) => {
+const CharacterStatusBar = ({ assignedName, iq, happiness = 90, reasoning = 10, t, showDebugControls = false }) => {
   const faceState = getFaceState(happiness);
 
   const faceSrc = useMemo(() => {
@@ -26,6 +26,7 @@ const CharacterStatusBar = ({ assignedName, happiness = 90, reasoning = 10, t, s
   const correctLabel = t?.hud_correct || 'Correct';
   const wrongLabel = t?.hud_wrong || 'Wrong';
   const designationLabel = t?.identification || 'DESIGNATION';
+  const iqLabel = t?.hud_iq || 'IQ';
 
   return (
     <div className="hud-wrap">
@@ -34,6 +35,10 @@ const CharacterStatusBar = ({ assignedName, happiness = 90, reasoning = 10, t, s
           <div className="hud-kv">
             <div className="hud-k">{designationLabel}</div>
             <div className="hud-v">{assignedName || '???'}</div>
+          </div>
+          <div className="hud-kv hud-kv--iq">
+            <div className="hud-k">{iqLabel}</div>
+            <div className="hud-v">{iq ?? '???'}</div>
           </div>
         </div>
 

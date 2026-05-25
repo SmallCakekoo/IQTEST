@@ -10,20 +10,25 @@ import TrenP4 from '../assets/images/justice images/Tren-P4.png';
 import TrenP5 from '../assets/images/justice images/Tren-P5.png';
 
 const Level3 = ({ onNext, t, onIQChange, onHudCorrect, onHudWrong }) => {
+  const MAX_WRONG_BEFORE_NO_GAIN = 2;
   const [step, setStep] = useState(0);
   const [logs, setLogs] = useState([]);
   const [startTime, setStartTime] = useState(Date.now());
+  const [wrongAttemptsByStep, setWrongAttemptsByStep] = useState({});
 
   const handleAnswer = (outcome, realLabel, systemLabel) => {
     const time = (Date.now() - startTime) / 1000;
     if (outcome === 'BLOCKED') {
       onHudWrong && onHudWrong();
       onIQChange && onIQChange(-4);
+      setWrongAttemptsByStep((prev) => ({ ...prev, [step]: (prev[step] || 0) + 1 }));
       return;
     }
 
     onHudCorrect && onHudCorrect();
-    const iqDelta = time < 4 ? 2 : time < 8 ? 0 : -2;
+    const wrongAttempts = wrongAttemptsByStep[step] || 0;
+    const rawDelta = time < 4 ? 2 : time < 8 ? 1 : -1;
+    const iqDelta = wrongAttempts >= MAX_WRONG_BEFORE_NO_GAIN ? Math.min(0, rawDelta) : rawDelta;
     onIQChange && onIQChange(iqDelta);
 
     const newLog = { section: `JUS-Q${step + 1}`, real: realLabel, system: systemLabel, time };
@@ -65,7 +70,7 @@ const Level3 = ({ onNext, t, onIQChange, onHudCorrect, onHudWrong }) => {
     { title: t.justice_title_trolley, q: t.jus_t_q2, image: TrenP2, options: createTrolleyOptions(t.jus_t_q2_opts, 1) },
     { title: t.justice_title_trolley, q: t.jus_t_q3, image: TrenP3, options: createTrolleyOptions(t.jus_t_q3_opts, 1) },
     { title: t.justice_title_trolley, q: t.jus_t_q4, image: TrenP4, options: createTrolleyOptions(t.jus_t_q4_opts, 1) },
-    { title: t.justice_title_trolley, q: t.jus_t_q5, image: TrenP5, options: createTrolleyOptions(t.jus_t_q5_opts, 1) },
+    { title: t.justice_title_trolley, q: t.jus_t_q5, image: TrenP5, options: createTrolleyOptions(t.jus_t_q5_opts, 0) },
     // Judgment
     { title: t.justice_title_judgment, q: t.jus_j_q1, options: createJudgmentOptions(t.jus_j_q1_opts, 1) }, // B
     { title: t.justice_title_judgment, q: t.jus_j_q2, options: createJudgmentOptions(t.jus_j_q2_opts, 2) }, // C
@@ -92,11 +97,27 @@ const Level3 = ({ onNext, t, onIQChange, onHudCorrect, onHudWrong }) => {
           </div>
 
           {current.image && (
-            <div className="mb-6 pixel-border" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <div
+              className="mb-6 pixel-border"
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                maxWidth: '560px',
+                margin: '0 auto 1.5rem',
+                padding: '0.6rem',
+              }}
+            >
               <img
                 src={current.image}
                 alt="Trolley dilemma"
-                style={{ maxWidth: '100%', maxHeight: '260px', width: '100%', objectFit: 'contain' }}
+                style={{
+                  display: 'block',
+                  maxWidth: '100%',
+                  maxHeight: '220px',
+                  width: 'auto',
+                  height: 'auto',
+                }}
               />
             </div>
           )}
